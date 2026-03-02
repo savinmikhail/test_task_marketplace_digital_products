@@ -7,38 +7,30 @@ framework:
                 middleware:
                     - reject_redelivered_message_middleware
                     - validation
-                    - doctrine_ping_connection
                     - add_bus_name_stamp_middleware: ['messenger.bus.default']
                     - dispatch_after_current_bus
                     - send_message
                     - failed_message_processing_middleware
                     - handle_message
-                    - doctrine_close_connection
-
-        failure_transport: failed
 
         transports:
-
-            failed:
-                dsn: 'doctrine://default?queue_name=failed'
 
             async:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     exchange:
-                        name: async
+                        name: '%env(MESSENGER_EXCHANGE_NAME)%'
+                        type: direct
+                        default_publish_routing_key: '%env(MESSENGER_ROUTING_KEY)%'
                     queues:
-                        app_async: ~
+                        'logs.ingest':
+                            binding_keys: ['%env(MESSENGER_ROUTING_KEY)%']
                 retry_strategy:
                     max_retries: 3
                     delay: 1000
                     multiplier: 5
 
-            scheduler_default:
-                dsn: 'doctrine://default'
-
-        routing:
-            App\Message\ProductCreatedMessage: async
+        routing: { }
 
 when@test:
     framework:
