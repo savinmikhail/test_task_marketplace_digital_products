@@ -21,19 +21,19 @@ framework:
                     exchange:
                         name: '%env(MESSENGER_EXCHANGE_NAME)%'
                         type: direct
+                        flags: 2
                         default_publish_routing_key: '%env(MESSENGER_ROUTING_KEY)%'
                     queues:
                         'logs.ingest':
+                            flags: 2
                             binding_keys: ['%env(MESSENGER_ROUTING_KEY)%']
                 retry_strategy:
                     max_retries: 3
                     delay: 1000
                     multiplier: 5
 
-        routing: { }
-
 when@test:
     framework:
         messenger:
             transports:
-                async: 'test://'
+                async: 'in-memory://'
