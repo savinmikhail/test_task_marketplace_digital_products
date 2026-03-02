@@ -1,0 +1,35 @@
+SHELL := /bin/sh
+
+# Загружаем переменные из .env и .env.local (локальный имеет приоритет)
+ifneq (,$(wildcard .env))
+include .env
+export
+endif
+
+ifneq (,$(wildcard .env.local))
+include .env.local
+export
+endif
+
+.PHONY: up php phpstan cs-fix rector
+
+up:
+	docker compose up -d
+	make dmm
+	@echo
+	@echo "Application is available at: http://localhost:$(APP_HTTP_PORT)/"
+
+php:
+	docker compose exec php bash
+
+phpstan:
+	docker compose exec php php tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon.dist
+
+cs-fix:
+	docker compose exec php php tools/php-cs-fixer/vendor/bin/php-cs-fixer fix
+
+rector:
+	docker compose exec php php tools/rector/vendor/bin/rector process
+
+dmm:
+	docker compose exec php php bin/console doctrine:migration:migrate -n
