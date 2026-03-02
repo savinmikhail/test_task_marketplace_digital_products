@@ -27,6 +27,8 @@ framework:
                         'logs.ingest':
                             flags: 2
                             binding_keys: ['%env(MESSENGER_ROUTING_KEY)%']
+                            arguments:
+                                x-max-priority: '%env(int:MESSENGER_QUEUE_MAX_PRIORITY)%'
                 retry_strategy:
                     max_retries: 3
                     delay: 1000

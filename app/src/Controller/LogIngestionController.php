@@ -48,6 +48,7 @@ final class LogIngestionController
                         routingKey: 'logs.ingest',
                         flags: 0,
                         attributes: [
+                            'priority' => $this->resolvePriority($log->level),
                             'delivery_mode' => 2,
                         ],
                     ),
@@ -63,5 +64,18 @@ final class LogIngestionController
             ],
             Response::HTTP_ACCEPTED,
         );
+    }
+
+    private function resolvePriority(string $level): int
+    {
+        return match (\strtolower($level)) {
+            'emergency', 'alert', 'critical' => 10,
+            'error' => 9,
+            'warning', 'warn' => 7,
+            'notice' => 6,
+            'info' => 5,
+            'debug' => 3,
+            default => 1,
+        };
     }
 }
