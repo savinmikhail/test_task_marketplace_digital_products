@@ -15,13 +15,13 @@ final readonly class LogIngestMessage
     public function __construct(
         public string $batchId,
         public string $publishedAt,
-        public int $retryCount,
         public string $timestamp,
         public string $level,
         public string $service,
         public string $message,
         public array $context = [],
         public ?string $traceId = null,
+        public int $retryCount = 0,
     ) {
     }
 }

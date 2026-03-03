@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Service;
 
 use App\Request\LogIngestRequest;
-use App\Request\LogRequest;
+use App\ValueObject\LogPayload;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ValidatorBuilder;
@@ -24,7 +24,7 @@ final class LogValidatorTest extends TestCase
     public function testValidPayloadHasNoViolations(): void
     {
         $request = new LogIngestRequest([
-            $this->createValidLogRequest(),
+            $this->createValidLogPayload(),
         ]);
 
         $violations = $this->validator->validate($request);
@@ -47,7 +47,7 @@ final class LogValidatorTest extends TestCase
     {
         $logs = [];
         for ($i = 0; $i < 1001; ++$i) {
-            $logs[] = $this->createValidLogRequest();
+            $logs[] = $this->createValidLogPayload();
         }
 
         $request = new LogIngestRequest($logs);
@@ -61,7 +61,7 @@ final class LogValidatorTest extends TestCase
     public function testInvalidTimestampReturnsViolation(): void
     {
         $request = new LogIngestRequest([
-            new LogRequest(
+            new LogPayload(
                 timestamp: 'bad-timestamp',
                 level: 'error',
                 service: 'auth-service',
@@ -79,9 +79,9 @@ final class LogValidatorTest extends TestCase
         );
     }
 
-    private function createValidLogRequest(): LogRequest
+    private function createValidLogPayload(): LogPayload
     {
-        return new LogRequest(
+        return new LogPayload(
             timestamp: '2026-02-26T10:30:45Z',
             level: 'info',
             service: 'api-gateway',

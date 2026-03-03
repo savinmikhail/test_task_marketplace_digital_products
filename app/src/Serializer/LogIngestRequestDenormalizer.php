@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use App\Request\LogIngestRequest;
-use App\Request\LogRequest;
+use App\ValueObject\LogPayload;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -57,7 +57,7 @@ final readonly class LogIngestRequestDenormalizer implements DenormalizerInterfa
                 continue;
             }
 
-            $logs[] = $this->denormalizer->denormalize($log, LogRequest::class, $format, $context);
+            $logs[] = $this->denormalizer->denormalize($log, LogPayload::class, $format, $context);
         }
 
         return new LogIngestRequest($logs);
