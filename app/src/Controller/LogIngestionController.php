@@ -13,18 +13,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final readonly class LogIngestionController
 {
-    public function __construct(
-        private LogIngestPublisher $publisher,
-    ) {
-    }
-
     #[Route('/api/logs/ingest', name: 'api_logs_ingest', methods: ['POST'])]
     public function __invoke(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         LogIngestRequest $request,
+        LogIngestPublisher $publisher,
     ): JsonResponse {
         $batch = $request->toDto();
-        $batchId = $this->publisher->publish($batch);
+        $batchId = $publisher->publish($batch);
 
         return new JsonResponse(
             [
