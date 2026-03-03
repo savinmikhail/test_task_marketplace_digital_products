@@ -74,6 +74,9 @@ final class LogIngestionControllerTest extends WebTestCase
         }
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     #[DataProvider('invalidPayloadProvider')]
     public function testIngestValidationErrorAndNoMessagesDispatched(array $payload): void
     {
