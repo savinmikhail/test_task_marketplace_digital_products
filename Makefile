@@ -29,3 +29,6 @@ cs-fix:
 
 rector:
 	docker compose exec php php tools/rector/vendor/bin/rector process
+
+test:
+	docker compose exec php bin/phpunit tests/Unit/Service/LogValidatorTest.php tests/Integration/Controller/LogIngestionControllerTest.php

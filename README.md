@@ -21,6 +21,8 @@ docker compose up -d --build
 docker compose exec php composer install
 ```
 
+`composer install` uses versions pinned in `app/composer.lock` for reproducible setup.
+
 3. Check that app is available:
 
 - API: `http://localhost:${APP_HTTP_PORT:-8080}`
@@ -29,7 +31,8 @@ docker compose exec php composer install
 
 ## Configuration
 
-Main app env file: `app/.env`.
+Docker env file (ports and local compose params): `.env` (template: `.env.example`).
+Main app env file: `app/.env` (template: `app/.env.example`).
 
 RabbitMQ-related variables:
 
