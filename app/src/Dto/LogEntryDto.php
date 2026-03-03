@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Dto;
 
-use DateTimeImmutable;
-
 final readonly class LogEntryDto
 {
     /**
      * @param array<string, mixed> $context
      */
     public function __construct(
-        public DateTimeImmutable $timestamp,
+        public \DateTimeImmutable $timestamp,
         public string $level,
         public string $service,
         public string $message,
@@ -21,4 +19,3 @@ final readonly class LogEntryDto
     ) {
     }
 }
-

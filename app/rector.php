@@ -19,5 +19,6 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::TYPE_DECLARATION,
         SetList::EARLY_RETURN,
     ]);
+    $rectorConfig->withSkip(['ClassPropertyAssignToConstructorPromotionRector']);
 };
 

@@ -15,7 +15,6 @@ endif
 
 up:
 	docker compose up -d
-	make dmm
 	@echo
 	@echo "Application is available at: http://localhost:$(APP_HTTP_PORT)/"
 
@@ -30,6 +29,3 @@ cs-fix:
 
 rector:
 	docker compose exec php php tools/rector/vendor/bin/rector process
-
-dmm:
-	docker compose exec php php bin/console doctrine:migration:migrate -n

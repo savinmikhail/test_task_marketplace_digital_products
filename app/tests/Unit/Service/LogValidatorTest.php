@@ -91,4 +91,3 @@ final class LogValidatorTest extends TestCase
         );
     }
 }
-

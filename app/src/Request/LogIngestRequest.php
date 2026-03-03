@@ -6,14 +6,10 @@ namespace App\Request;
 
 use App\Dto\LogBatchDto;
 use App\Dto\LogEntryDto;
-use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class LogIngestRequest
 {
-    /**
-     * @param mixed $logs
-     */
     public function __construct(mixed $logs = [])
     {
         $this->logs = $logs;
@@ -39,7 +35,7 @@ final class LogIngestRequest
             \assert($item instanceof LogRequest);
 
             $entries[] = new LogEntryDto(
-                new DateTimeImmutable($item->timestamp),
+                new \DateTimeImmutable($item->timestamp),
                 $item->level,
                 $item->service,
                 $item->message,

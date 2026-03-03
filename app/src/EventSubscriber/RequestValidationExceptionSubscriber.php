@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
-use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Throwable;
 
 final class RequestValidationExceptionSubscriber implements EventSubscriberInterface
 {
@@ -27,7 +26,7 @@ final class RequestValidationExceptionSubscriber implements EventSubscriberInter
     public function onKernelException(ExceptionEvent $event): void
     {
         $validationException = $this->extractValidationException($event->getThrowable());
-        if (null === $validationException) {
+        if (!$validationException instanceof ValidationFailedException) {
             $payloadError = $this->extractPayloadError($event->getThrowable());
             if (null === $payloadError) {
                 return;
@@ -66,20 +65,20 @@ final class RequestValidationExceptionSubscriber implements EventSubscriberInter
         ));
     }
 
-    private function extractValidationException(Throwable $throwable): ?ValidationFailedException
+    private function extractValidationException(\Throwable $throwable): ?ValidationFailedException
     {
         if ($throwable instanceof ValidationFailedException) {
             return $throwable;
         }
 
-        if ($throwable instanceof HttpExceptionInterface && $throwable->getPrevious() instanceof Throwable) {
+        if ($throwable instanceof HttpExceptionInterface && $throwable->getPrevious() instanceof \Throwable) {
             return $this->extractValidationException($throwable->getPrevious());
         }
 
         return null;
     }
 
-    private function extractPayloadError(Throwable $throwable): ?string
+    private function extractPayloadError(\Throwable $throwable): ?string
     {
         if ($throwable instanceof NotNormalizableValueException) {
             return $throwable->getMessage();
@@ -89,7 +88,7 @@ final class RequestValidationExceptionSubscriber implements EventSubscriberInter
             return 'Request payload contains invalid JSON data.';
         }
 
-        if ($throwable instanceof HttpExceptionInterface && $throwable->getPrevious() instanceof Throwable) {
+        if ($throwable instanceof HttpExceptionInterface && $throwable->getPrevious() instanceof \Throwable) {
             return $this->extractPayloadError($throwable->getPrevious());
         }
 

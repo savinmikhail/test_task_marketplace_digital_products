@@ -62,4 +62,3 @@ final class LogRequest
     #[Assert\Type(type: 'string', message: 'Field "trace_id" must be a string or null.')]
     public mixed $traceId = null;
 }
-

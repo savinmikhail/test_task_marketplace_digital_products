@@ -6,18 +6,17 @@ namespace App\Controller;
 
 use App\Message\LogIngestMessage;
 use App\Request\LogIngestRequest;
-use DateTimeImmutable;
-use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class LogIngestionController
+final readonly class LogIngestionController
 {
     public function __construct(
-        private readonly MessageBusInterface $messageBus,
+        private MessageBusInterface $messageBus,
     ) {
     }
 
@@ -28,7 +27,7 @@ final class LogIngestionController
     ): JsonResponse {
         $batch = $request->toDto();
         $batchId = 'batch_'.\bin2hex(\random_bytes(16));
-        $publishedAt = (new DateTimeImmutable())->format(DATE_ATOM);
+        $publishedAt = (new \DateTimeImmutable())->format(DATE_ATOM);
 
         foreach ($batch->logs as $log) {
             $this->messageBus->dispatch(
