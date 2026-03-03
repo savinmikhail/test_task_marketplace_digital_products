@@ -96,6 +96,52 @@ final class LogIngestionControllerTest extends WebTestCase
         self::assertCount(0, $transport->getSent());
     }
 
+    public function testIngestReturnsBadRequestForNonObjectJsonPayload(): void
+    {
+        $client = self::createClient([], [
+            'HTTP_ACCEPT' => 'application/json',
+            'CONTENT_TYPE' => 'application/json',
+        ]);
+
+        $client->request('POST', '/api/logs/ingest', [], [], [], '"abc"');
+
+        $response = $client->getResponse();
+        self::assertSame(400, $response->getStatusCode());
+        $data = \json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertSame('error', $data['status']);
+        self::assertSame('Validation failed.', $data['message']);
+        self::assertSame('payload', $data['errors'][0]['field']);
+        self::assertSame('Request payload must be a JSON object.', $data['errors'][0]['message']);
+
+        $transport = self::getContainer()->get('messenger.transport.async');
+        self::assertInstanceOf(InMemoryTransport::class, $transport);
+        self::assertCount(0, $transport->getSent());
+    }
+
+    public function testIngestReturnsBadRequestForMalformedJsonPayload(): void
+    {
+        $client = self::createClient([], [
+            'HTTP_ACCEPT' => 'application/json',
+            'CONTENT_TYPE' => 'application/json',
+        ]);
+
+        $client->request('POST', '/api/logs/ingest', [], [], [], '{bad');
+
+        $response = $client->getResponse();
+        self::assertSame(400, $response->getStatusCode());
+        $data = \json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertSame('error', $data['status']);
+        self::assertSame('Validation failed.', $data['message']);
+        self::assertSame('payload', $data['errors'][0]['field']);
+        self::assertSame('Request payload contains invalid JSON data.', $data['errors'][0]['message']);
+
+        $transport = self::getContainer()->get('messenger.transport.async');
+        self::assertInstanceOf(InMemoryTransport::class, $transport);
+        self::assertCount(0, $transport->getSent());
+    }
+
     /**
      * @return array<string, array{0: array<string, mixed>}>
      */
@@ -114,4 +160,3 @@ final class LogIngestionControllerTest extends WebTestCase
         ];
     }
 }
-

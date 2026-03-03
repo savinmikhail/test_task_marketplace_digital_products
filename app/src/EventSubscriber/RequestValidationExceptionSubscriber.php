@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +28,23 @@ final class RequestValidationExceptionSubscriber implements EventSubscriberInter
     {
         $validationException = $this->extractValidationException($event->getThrowable());
         if (null === $validationException) {
+            $payloadError = $this->extractPayloadError($event->getThrowable());
+            if (null === $payloadError) {
+                return;
+            }
+
+            $event->setResponse(new JsonResponse(
+                [
+                    'status' => 'error',
+                    'message' => 'Validation failed.',
+                    'errors' => [[
+                        'field' => 'payload',
+                        'message' => $payloadError,
+                    ]],
+                ],
+                Response::HTTP_BAD_REQUEST,
+            ));
+
             return;
         }
 
@@ -60,9 +79,25 @@ final class RequestValidationExceptionSubscriber implements EventSubscriberInter
         return null;
     }
 
+    private function extractPayloadError(Throwable $throwable): ?string
+    {
+        if ($throwable instanceof NotNormalizableValueException) {
+            return $throwable->getMessage();
+        }
+
+        if ($throwable instanceof NotEncodableValueException) {
+            return 'Request payload contains invalid JSON data.';
+        }
+
+        if ($throwable instanceof HttpExceptionInterface && $throwable->getPrevious() instanceof Throwable) {
+            return $this->extractPayloadError($throwable->getPrevious());
+        }
+
+        return null;
+    }
+
     private function normalizePropertyPath(string $propertyPath): string
     {
         return (string) \preg_replace('/\[(\d+)\]/', '.$1', $propertyPath);
     }
 }
-
